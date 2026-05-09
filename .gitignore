@@ -1,0 +1,58 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+.directory
+
+# Arduino IDE artefaktları
+*.hex
+*.elf
+*.bin
+*.eep
+*.lst
+*.lss
+*.map
+*.o
+*.d
+build/
+.build/
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.cproject
+.settings/
+
+# Python (eğer ileride PC arayüzü Python ile yapılırsa)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+venv/
+env/
+ENV/
+
+# Geçici dosyalar
+*.tmp
+*.bak
+*.log
+
+# Eski / kullanılmayan dosyalar
+balalprojeanalizör*.pdf
