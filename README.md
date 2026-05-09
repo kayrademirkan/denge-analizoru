@@ -1,168 +1,155 @@
-# Sensör Tabanlı Dijital Denge Analizörü
+# Sensor-Based Digital Balance Analyzer
 
-> Düşük maliyetli, taşınabilir bir **postürografi** cihazı. ATmega328P + MPU6050 + Tamamlayıcı Filtre tabanlı; vücut salınım açılarını ölçüp 0–100 arası bir denge skoru üretir.
+Düşük maliyetli, taşınabilir bir postürografi cihazı. ATmega328P mikrodenetleyici ve MPU6050 6 eksenli MEMS hareket işleme birimi tabanlı; Tamamlayıcı Filtre algoritması ile vücut salınım açılarını gerçek zamanlı olarak ölçer ve normalize bir denge skoru üretir.
 
-![Status](https://img.shields.io/badge/durum-prototip-success)
+![Status](https://img.shields.io/badge/status-prototype-success)
 ![Platform](https://img.shields.io/badge/platform-Arduino_Uno-blue)
-![Language](https://img.shields.io/badge/dil-C%2B%2B-orange)
-![License](https://img.shields.io/badge/lisans-MIT-green)
-![Cost](https://img.shields.io/badge/maliyet-~1300_TL-yellow)
+![Language](https://img.shields.io/badge/language-C%2B%2B-orange)
+![License](https://img.shields.io/badge/license-MIT-green)
 
 ---
 
-## 📖 Özet
+## Abstract
 
-Klinik düzeydeki postürografi cihazları **350 000 TL'den** başlıyor, büyük ve taşınmaz. Bu proje, aynı temel ölçüm işlevini **~1 300 TL**'lik donanımla, 9 V pille **10 saat** çalışan, host-bağımsız bir cihazda gerçekleştiriyor. **MPU6050** 6 eksenli IMU'dan alınan ham veri, gömülü C/C++ yazılımı içinde **Tamamlayıcı Filtre** ile birleştiriliyor; sonuçlar yerel OLED ekranda ve seri portta CSV olarak sunuluyor.
+This repository hosts the firmware and academic documentation of a low-cost, portable posturography device developed as a term project for the Microcontrollers course at Ege University, Tire Kutsan Vocational School (Computer Programming Program). The device is built around an 8-bit AVR ATmega328P microcontroller and an InvenSense MPU6050 6-axis MEMS Inertial Measurement Unit (IMU). Raw acceleration and angular velocity data are fused via a Complementary Filter (alpha = 0.96) to obtain body sway angles in real time. A 128x64 SSD1306 OLED display, an NEC infrared remote receiver and a passive piezoelectric buzzer provide a fully self-contained, host-independent user interface. Results are also streamed as CSV over USART at 115 200 baud for downstream analysis. The complete bill of materials is approximately 1 300 TRY, which is roughly 0.4% of the cost of clinical-grade posturography platforms. The prototype achieves about 10 hours of continuous operation on a single 9 V alkaline battery thanks to a software low-power standby mode.
 
-> **Not:** Bu cihaz klinik tanı aracı **değildir**; bireysel takip ve göreceli karşılaştırma için tasarlanmış bir eğitim/araştırma prototipidir.
-
-## 📖 Abstract (English)
-
-A low-cost (~40 USD), portable posturography device based on the **ATmega328P** microcontroller and **MPU6050** 6-axis MEMS IMU. Raw acceleration and angular velocity data are fused via a **Complementary Filter** to compute body sway angles in real time. Results are displayed on a 128×64 OLED and streamed as CSV over USART (115 200 baud). The device runs ~10 hours on a single 9 V alkaline battery thanks to a software low-power standby mode (MPU SLEEP + OLED DISPLAYOFF). Total bill of materials is approximately 1 300 TRY (~40 USD), about 1/250th the cost of clinical posturography platforms.
+> **Disclaimer.** This device is **not** a clinical diagnostic instrument. It is intended exclusively for education, research and individual longitudinal self-tracking. No medical claims are made regarding its output.
 
 ---
 
-## ✨ Özellikler
+## Özet
 
-- 🎯 **±0,5° hassasiyetle** statik açı ölçümü
-- ⚡ **Tamamlayıcı Filtre** ile sensör füzyonu (α = 0,96)
-- 🔋 **9 V pil ile ~10 saat** çalışma süresi (saha gözlemi)
-- 💤 Yazılımsal **bekleme modu** (akım: 85 mA → 45 mA)
-- 📺 **128×64 OLED** üzerinde gerçek zamanlı görsel geri bildirim
-- 🔊 **Pasif piezo buzzer** ile işitsel onay (ölçüm başı/sonu/kalibrasyon)
-- 🎮 **21 butonlu IR kumanda** ile temassız kullanım
-- 📊 **CSV veri akışı** (115 200 baud) — Arduino IDE Serial Plotter, Excel, Python uyumlu
-- 🛠 **İki modlu ölçüm**: SAĞ-SOL (Roll) veya ÖN-ARKA (Pitch)
-- 🔄 **İki aşamalı otomatik kalibrasyon** (gyro bias + açı referansı)
+Bu depo, Ege Üniversitesi Tire Kutsan Meslek Yüksekokulu Bilgisayar Programcılığı Programı Mikrodenetleyiciler Dersi kapsamında geliştirilen taşınabilir bir postürografi cihazının gömülü yazılımını ve akademik dokümantasyonunu içermektedir. Sistem, 8 bit AVR mimarisine sahip ATmega328P mikrodenetleyici ile InvenSense MPU6050 6 eksenli MEMS atalet ölçüm birimini temel almaktadır. Sensörden alınan ham ivme ve açısal hız verileri, Tamamlayıcı Filtre algoritması (alfa = 0,96) ile birleştirilerek vücut salınım açıları gerçek zamanlı olarak hesaplanmaktadır. 128x64 SSD1306 OLED ekran, NEC kızılötesi alıcı ve pasif piezoelektrik buzzer; sistemin host bağımsız bir kullanım sunmasını sağlar. Ölçüm verileri ek olarak 115 200 baud üzerinden CSV biçiminde seri porta yayınlanır. Toplam donanım maliyeti yaklaşık 1 300 TL olup klinik düzey postürografi cihazlarının yaklaşık binde dördüne karşılık gelmektedir. Yazılımsal düşük güç bekleme modu sayesinde prototip, 9 V alkalin batarya ile yaklaşık 10 saat kesintisiz çalışabilmektedir.
+
+> **Uyarı.** Bu cihaz klinik bir tanı aracı **değildir**. Yalnızca eğitim, araştırma ve bireysel takip amacıyla geliştirilmiştir. Çıktıları üzerinde herhangi bir tıbbi iddia bulunmamaktadır.
 
 ---
 
-## 🔧 Donanım Gereksinimleri
+## Özellikler
 
-| Bileşen | Model | Adet | Birim Maliyet (TL) |
-|---------|-------|------|---------------------|
-| Mikrodenetleyici | Arduino Uno R3 | 1 | ~600 |
-| IMU sensör | MPU6050 (SY-104 modülü) | 1 | ~120 |
-| OLED ekran | SSD1306 0,96″ I²C | 1 | ~150 |
-| IR alıcı + kumanda kiti | 1838B + 21 buton | 1 | ~120 |
-| Pasif buzzer | 12 mm piezo | 1 | ~30 |
-| 9 V pil + tutucu | Alkalin | 1 | ~80 |
-| Breadboard + jumper | – | – | ~80 |
-| Mekanik (denge tahtası) | MDF + PVC pivot + L köşebent | – | ~120 |
-| **TOPLAM** | | | **~1 300 TL** |
+* Statik ölçümlerde +/- 0,5 derece hassasiyet hedefi
+* alfa = 0,96 katsayılı Tamamlayıcı Filtre tabanlı sensör füzyonu
+* İki aşamalı otomatik kalibrasyon (jiroskop sapma çıkarımı ve referans açı sıfırlaması)
+* 9 V alkalin pil ile yaklaşık 10 saat saha çalışma süresi (gözlemsel)
+* Yazılımsal bekleme modu (aktif 85 mA, bekleme 45 mA)
+* 128x64 SSD1306 OLED üzerinde gerçek zamanlı görsel geri bildirim
+* 12 mm pasif piezoelektrik buzzer ile işitsel onay
+* 21 butonlu NEC IR uzaktan kumanda ile temassız kullanım
+* 115 200 baud CSV veri akışı (Arduino IDE Serial Plotter, Excel, Python uyumlu)
+* Tek eksenli ölçüm modu seçimi (SAĞ-SOL veya ÖN-ARKA)
+* Bit-banging tabanlı, kütüphanesiz NEC IR çözücüsü (yaklaşık 1 KB SRAM tasarrufu)
+
+---
+
+## Donanım Listesi
+
+| Bileşen | Model | Adet | Tahmini Birim Maliyet (TL) |
+|---------|-------|------|----------------------------|
+| Mikrodenetleyici kartı | Arduino Uno R3 | 1 | 600 |
+| IMU sensör modülü | MPU6050 (SY-104 breakout) | 1 | 120 |
+| OLED ekran | 0,96 inç SSD1306 I2C | 1 | 150 |
+| IR alıcı + uzaktan kumanda kiti | 1838B (38 kHz) + 21 butonlu kumanda | 1 | 120 |
+| Pasif buzzer | 12 mm piezoelektrik | 1 | 30 |
+| Güç kaynağı | 9 V alkalin pil + tutucu | 1 | 80 |
+| Prototipleme | Breadboard + jumper kablolar | 1 takım | 80 |
+| Mekanik yapı | MDF tahta + PVC pivot + L köşebent + silikon tampon | 1 takım | 120 |
+| **Toplam** | | | **~ 1 300 TL** |
 
 ### Pin Haritası
 
-| Bileşen | Arduino Uno Pini |
-|---------|------------------|
-| MPU6050 SDA / OLED SDA | A4 (paylaşımlı I²C) |
-| MPU6050 SCL / OLED SCL | A5 (paylaşımlı I²C) |
-| 1838B IR alıcı OUT | D8 |
-| Pasif buzzer (+) | D7 |
-| Tüm VCC | 5 V |
-| Tüm GND | GND |
+| Bileşen | Arduino Uno Pini | İşlev |
+|---------|------------------|-------|
+| MPU6050 (SY-104) SDA | A4 | I2C veri hattı |
+| MPU6050 (SY-104) SCL | A5 | I2C saat hattı |
+| OLED 0,96 inç SDA | A4 | MPU6050 ile paylaşımlı I2C |
+| OLED 0,96 inç SCL | A5 | MPU6050 ile paylaşımlı I2C |
+| 1838B IR alıcı OUT | D8 | Demodüle edilmiş sayısal sinyal |
+| 12 mm pasif piezo buzzer (+) | D7 | PWM/tone çıkışı |
+| Tüm VCC | 5 V | Besleme |
+| Tüm GND | GND | Toprak |
+
+I2C hattında MPU6050 (`0x68`) ve OLED (`0x3C`) farklı adreslerde olduğu için tek bir veri yolu paylaşılarak iki cihaz aynı anda yönetilebilmektedir.
 
 ---
 
-## 📥 Kurulum
+## Kurulum
 
-### 1. Yazılım
+### Yazılım Bağımlılıkları
 
-#### Gerekli kütüphaneler (Arduino IDE → Library Manager)
+Aşağıdaki kütüphaneler Arduino IDE Library Manager üzerinden kurulmalıdır:
 
-- `Wire` (Arduino çekirdek)
-- `Adafruit GFX Library`
-- `Adafruit SSD1306`
+* `Wire` (Arduino çekirdek)
+* `Adafruit GFX Library`
+* `Adafruit SSD1306`
 
-#### Derleme ve yükleme
+### Derleme ve Yükleme
 
 ```bash
-git clone https://github.com/kullanici-adi/denge-analizoru.git
+git clone https://github.com/kayrademirkan/denge-analizoru.git
 cd denge-analizoru
 ```
 
-1. Arduino IDE'de `dengeanal.ino` dosyasını aç
-2. **Tools → Board → Arduino Uno** seç
-3. **Tools → Port → /dev/ttyUSB0** (veya COM portunuz) seç
-4. **Upload** (▶) butonu ile yükle
+1. Arduino IDE'de `source.ino` dosyasını açınız.
+2. **Tools > Board** menüsünden Arduino Uno seçiniz.
+3. **Tools > Port** menüsünden ilgili seri portu seçiniz.
+4. **Upload** butonu ile firmware'i karta yükleyiniz.
 
-### 2. Donanım Bağlantısı
-
-EK-D'deki Wokwi devre şemasını takip et: [PROJE_RAPORU.md](PROJE_RAPORU.md) — Bölüm 4.5 ve 4.6.
+> Arduino IDE, sketch dosyalarının kendi adıyla eşleşen klasör içinde bulunmasını gerektirir. Bu nedenle `source.ino` dosyasını ilk derlemede `source/source.ino` yapısına taşımayı önerebilir; bu uyarıyı kabul edebilirsiniz.
 
 ---
 
-## 🎮 Kullanım
+## Kullanım
 
-### İlk Açılış
+İlk açılışta sistem otomatik olarak iki saniyelik kalibrasyon sürecini başlatır. Bu süre boyunca cihaz hareketsiz tutulmalıdır. Kalibrasyon tamamlandığında üç vuruşluk bir bip sesi ile geri bildirim verilir ve sistem hazır ekranına geçer.
 
-1. Cihaza güç ver (USB veya 9 V pil)
-2. **2 saniye sabit tut** — otomatik kalibrasyon (3 vuruşluk bip sesi = tamam)
-3. OLED'de **"SAĞ-SOL"** moduna düştüğünü gör
+| Kumanda Tuşu | İşlev |
+|--------------|-------|
+| OK | 10 saniyelik ölçümü başlatır |
+| 1 / SAĞ | SAĞ-SOL (Roll) ölçüm moduna geçer |
+| 2 / SOL | ÖN-ARKA (Pitch) ölçüm moduna geçer |
+| 0 | Yeniden kalibrasyon yapar |
+| # | Bekleme moduna girer veya çıkar |
 
-### Ölçüm Almak
+### Ölçüm Sonuçlarının Yorumlanması
 
-| Tuş | İşlev |
-|-----|-------|
-| **OK** | 10 saniyelik ölçümü başlat |
-| **1 / SAĞ** | SAĞ-SOL moduna geç |
-| **2 / SOL** | ÖN-ARKA moduna geç |
-| **0** | Yeniden kalibrasyon |
-| **#** | Bekleme moduna gir / çıkar |
+| Skor Aralığı | Yorum |
+|--------------|-------|
+| 85 - 95 | Tipik sağlıklı denge |
+| 65 - 85 | Sınırda performans (örneğin gözler kapalı duruş) |
+| 35 - 65 | Hafif denge zorluğu |
+| 0 - 35 | Belirgin sallanma veya kontrolsüz hareket |
 
-### Sonuç Yorumlama
-
-| Skor | Anlam |
-|------|-------|
-| 85 – 95 | İyi denge |
-| 65 – 85 | Orta (gözler kapalı sağlıklı kişi) |
-| 35 – 65 | Hafif denge zorluğu |
-| 0 – 35 | Belirgin sallanma |
-
-> Skor klinik tanı aracı **değildir**, kişisel takip için göreli bir performans göstergesidir.
+> Skor klinik bir tanı aracı değildir. Bireyin kendi performansını zaman içinde takip etmesi için göreli bir göstergedir.
 
 ---
 
-## 📂 Klasör Yapısı
-
-```
-denge/
-├── README.md                          # Bu dosya
-├── LICENSE                            # MIT lisansı
-├── dengeanal.ino                      # Ana firmware (Arduino sketch)
-├── eksen_test/
-│   └── eksen_test.ino                 # Eksen ve maksimum açı test sketch'i
-├── PROJE_RAPORU.md                    # Detaylı proje raporu (akademik)
-├── MikroProje.pdf                     # Raporun PDF sürümü (34 sayfa)
-├── BILIMSEL_MAKALE.md                 # IEEE konferans makalesi taslağı
-├── SUNUM_TASLAGI.md                   # 15 slayt sunum taslağı + Claude prompt
-└── SUNUM_BILGILERI.md                 # Jüri savunması rehberi (FAQ + ipuçları)
-```
-
----
-
-## 📊 Teknik Detaylar
+## Algoritmik Temel
 
 ### Tamamlayıcı Filtre
 
-Yüksek frekans gürültü (ivmeölçer) ve uzun vadeli sapma (jiroskop) sorunlarını eş zamanlı çözer:
+İvmeölçer verisinin yüksek frekanslı titreşimden etkilenmesi ve jiroskop verisinin uzun süreli sapma (drift) göstermesi nedeniyle, iki sensör çıktısı aşağıdaki ayrık zamanlı doğrusal birleşim ile füzyonlanmaktadır:
 
-$$\theta_{yeni} = \alpha \cdot (\theta_{eski} + \omega \cdot \Delta t) + (1 - \alpha) \cdot \theta_{ivme}$$
+```
+theta_yeni = alfa * (theta_eski + omega * dt) + (1 - alfa) * theta_ivme
+```
 
-Bu projede $\alpha = 0{,}96$ — yani tahminin %96'sı jiroskop integralinden, %4'ü ivmeölçerden gelir. Filtre zaman sabiti $\tau \approx 1{,}22$ s.
+Burada `alfa = 0,96` olarak seçilmiştir. Bu katsayı, kısa vadede jiroskop integraline %96, ivmeölçere %4 ağırlık vermek anlamına gelir. Filtre zaman sabiti `tau = -dt / ln(alfa)` formülüyle hesaplanır ve tipik `dt = 50 ms` için yaklaşık 1,22 saniyedir.
 
-### Skor Formülü
+### Skor Hesabı
 
-$$\text{Skor} = \max\left(0,\ \min\left(100,\ 100 - 5 \cdot \overline{|\theta|} - 2 \cdot \theta_{\max} - 8 \cdot S\right)\right)$$
+Ölçüm penceresi sonunda dört temel istatistiksel gösterge tek bir 0-100 arası normalize skora indirgenir:
 
-burada:
-- $\overline{|\theta|}$: ortalama mutlak sapma
-- $\theta_{\max}$: pik sapma
-- $S$: hareket toplamı (stabilite indeksi)
+```
+Skor = max(0, min(100, 100 - 5 * ortalama_mutlak - 2 * maksimum_sapma - 8 * stabilite))
+```
 
-### Seri Port Veri Formatı
+Katsayılar (5, 2, 8); sağlıklı bireylerde 80 ile 95 arası, denge bozukluğu durumlarında 0 ile 40 arası bir skor üretecek biçimde ampirik olarak belirlenmiştir.
 
-Ölçüm boyunca **115 200 baud** üzerinden CSV akışı:
+---
+
+## Seri Port Veri Formatı
+
+Cihaz, ölçüm boyunca her bir örneği 115 200 baud üzerinden CSV biçiminde yayınlar:
 
 ```
 # OLCUM_BASLADI
@@ -178,68 +165,69 @@ burada:
 # skor=92
 ```
 
+Yorum satırları `#` ile başlar. Veri kolonları sırasıyla: zaman damgası (ms), aktif moddaki açı (derece), Roll (derece), Pitch (derece), ham AcX/AcY/AcZ değerleri (LSB; 16 384 LSB = 1 g).
+
 ---
 
-## 🎓 Akademik Bilgiler
+## Bilinen Sınırlılıklar
+
+1. Tek eksenli pivot mekanik tasarım nedeniyle, ÖN-ARKA modunda kullanıcının tahta üzerinde 90 derece dönmüş pozisyonda durması gerekmektedir.
+2. Sistem, ölçüm sonuçlarını cihaz üzerinde kalıcı olarak saklamaz; veriler yalnızca anlık olarak ekranda gösterilir ve seri porta yayınlanır.
+3. Çoklu denek üzerinde istatistiksel doğrulama ve altın standart cihazlarla karşılaştırmalı validasyon henüz yapılmamıştır.
+4. Bileşen bazlı akım ölçümleri multimetre ile doğrulanmamış, üretici datasheet değerleri esas alınmıştır.
+5. Bazı klon MPU6050 entegrelerinin standart-dışı davranışı nedeniyle dahili dijital alçak geçiren filtre (DLPF) varsayılan halinde bırakılmıştır.
+
+---
+
+## Gelecek Çalışmalar
+
+* Çift eksenli (küresel) pivot mekanizması ile eş zamanlı Roll ve Pitch ölçümü
+* SD kart entegrasyonu ile uzun süreli ölçüm kaydı
+* Bluetooth Low Energy (BLE) modülü üzerinden akıllı telefon arayüzü
+* Lityum-iyon batarya ve buck regülatör ile uzatılmış pil ömrü
+* Yetkili sağlık kurumları ile klinik validasyon çalışması
+* Processing veya C# tabanlı bilgisayar arayüz yazılımı
+
+---
+
+## Akademik Bilgiler
 
 | Alan | Değer |
 |------|-------|
-| **Kurum** | Ege Üniversitesi, Tire Kutsan Meslek Yüksekokulu |
-| **Program** | Bilgisayar Programcılığı |
-| **Ders** | Mikrodenetleyiciler |
-| **Dönem** | 2025–2026 Bahar |
-| **Hazırlayanlar** | Kayra DEMİRKAN (60240000050), Samet TOKDEMİR (61230000118) |
-| **Danışman** | Prof. Dr. Ahmet KAYA |
+| Kurum | Ege Üniversitesi, Tire Kutsan Meslek Yüksekokulu |
+| Program | Bilgisayar Programcılığı |
+| Ders | Mikrodenetleyiciler |
+| Akademik Dönem | 2025-2026 Bahar |
+| Hazırlayanlar | Kayra DEMİRKAN (60240000050), Samet TOKDEMİR (61230000118) |
+| Danışman | Prof. Dr. Ahmet KAYA |
 
-### Akademik Çıktılar
+Detaylı 34 sayfalık akademik proje raporu için [`MikroProje.pdf`](MikroProje.pdf) dosyasına başvurunuz.
 
-- 📄 **34 sayfa proje raporu** ([MikroProje.pdf](MikroProje.pdf))
-- 📑 **IEEE konferans makalesi taslağı** ([BILIMSEL_MAKALE.md](BILIMSEL_MAKALE.md))
-- 🎤 **15 slayt sunum** ([SUNUM_TASLAGI.md](SUNUM_TASLAGI.md))
+### Atıf
 
----
-
-## 🚧 Bilinen Sınırlılıklar
-
-- Tek eksenli mekanik pivot — ÖN-ARKA modunda kullanıcının tahta üzerinde 90° dönmesi gerekir
-- Çoklu denek üzerinde istatistiksel doğrulama yapılmadı
-- Multimetre ile bileşen-bazlı akım ölçümü yapılmadı (datasheet temelli tahmin)
-- Cihaz üzerinde kalıcı veri kaydı yok (yalnızca ekran + seri port)
-- Klinik referans cihazlarla karşılaştırma yapılmadı
-
-## 🔮 Gelecek Geliştirmeler
-
-- [ ] **Çift eksenli (küresel) pivot** — 90° dönme gereksinimini ortadan kaldırır
-- [ ] **SD kart entegrasyonu** — uzun süreli takip için kalıcı kayıt
-- [ ] **Bluetooth Low Energy (BLE)** — akıllı telefon uygulaması
-- [ ] **Lityum-iyon batarya + buck regülatör** — daha uzun pil ömrü
-- [ ] **PC arayüz yazılımı** — Processing/C# tabanlı gerçek zamanlı görselleştirme
-- [ ] **Klinik validasyon çalışması** — altın standart cihazlarla karşılaştırma
-
----
-
-## 📄 Lisans
-
-Bu proje **MIT Lisansı** ile yayınlanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakınız.
-
-Akademik çalışmalarda atıf vermek için:
+Bu çalışmaya akademik atıf yapmak için aşağıdaki biçim önerilmektedir:
 
 ```
-Demirkan, K. & Tokdemir, S. (2026). Sensör Tabanlı Dijital Denge Analizörü.
-Ege Üniversitesi Tire Kutsan MYO, Bilgisayar Programcılığı Programı,
-Mikrodenetleyiciler Dersi Dönem Projesi.
+Demirkan, K., Tokdemir, S. (2026). Sensör Tabanlı Dijital Denge Analizörü ve
+Gömülü Sistem Entegrasyonu. Ege Üniversitesi Tire Kutsan Meslek Yüksekokulu,
+Bilgisayar Programcılığı Programı, Mikrodenetleyiciler Dersi Dönem Projesi,
+Mayıs 2026.
 ```
-
-## 🙏 Teşekkür
-
-Bu çalışma, Ege Üniversitesi Tire Kutsan Meslek Yüksekokulu Mikrodenetleyiciler Dersi 2025–2026 Bahar Dönemi kapsamında gerçekleştirilmiştir. Yazarlar, ders danışmanı **Prof. Dr. Ahmet KAYA**'ya teorik ve uygulamalı yönlendirmeleri için teşekkür eder.
-
-## 📬 İletişim
-
-Soru, öneri veya katkı için issue açabilir veya pull request gönderebilirsiniz.
 
 ---
 
-<p align="center">
-  <i>Sağlık bilimleri, postürografi ve eğitim alanlarında erişilebilir teknoloji için.</i>
-</p>
+## Lisans
+
+Bu proje [MIT Lisansı](LICENSE) ile yayınlanmıştır. Yazılım, atıf yükümlülüğü dışında serbestçe kullanılabilir, değiştirilebilir ve dağıtılabilir.
+
+---
+
+## Teşekkür
+
+Bu çalışma, Ege Üniversitesi Tire Kutsan Meslek Yüksekokulu Mikrodenetleyiciler Dersi 2025-2026 Bahar Dönemi kapsamında gerçekleştirilmiştir. Yazarlar; ders danışmanı Prof. Dr. Ahmet KAYA'ya teorik ve uygulamalı yönlendirmeleri, ilgili öğretim elemanlarına ve okul idaresine destekleri için teşekkür eder.
+
+---
+
+## İletişim
+
+Proje hakkında soru, öneri veya katkılarınız için GitHub Issue açabilir veya Pull Request gönderebilirsiniz.
